@@ -1,61 +1,39 @@
-const emojis = [
-    "🤓",
-    "🤓",
-    "👻",
-    "👻",
-    "👾",
-    "👾",
-    "👽",
-    "👽",
-    "🧟‍♂️",
-    "🧟‍♂️",
-    "😾",
-    "😾",
-    "🐸",
-    "🐸",
-    "🎅",
-    "🎅"
-];
-let openCards = [];
+const pianoKeys= document.querySelectorAll('.piano-keys .key')
+const volumeslider = document.querySelector('.volume-slider input')
+let audio = new Audio("src/audio/a.wav")
+let mapedkeys = [];
+const keysCheck=document.querySelector(".keys-check input");
 
-let shuffleEmojis = emojis.sort(()=>(Math.random() > 0.5 ? 2 : -1));
-
-for(let i=0; i < emojis.length; i++){
-    let box = document.createElement("div");
-    box.className = "item";
+const playTune = (key) => {
+    audio.src = `src/audio/${key}.wav`;
+    audio.play()
+    const clickedKey = document.querySelector(`[data-key="${key}"]`);
+    clickedKey.classList.add('active');
+    setTimeout(() => {
+        clickedKey.classList.remove('active');
+    }, 150);
+};
     
-    box.innerHTML = shuffleEmojis[i];
-    box.onclick = handleclick;
-    document.querySelector(".game").appendChild(box)
+
+pianoKeys.forEach(key => {
+    key.addEventListener('click', () => playTune(key.dataset.key))
+    mapedkeys.push(key.dataset.key);
+})
+
+document.addEventListener("keydown", (e) => {
+    if (mapedkeys.includes(e.key)) {
+        playTune(e.key);
+    }
+});
+
+const handleVolume = (e) => {
+    audio.volume = e.target.value;
 }
 
-function handleclick(){
-    if(openCards.length < 2 && !this.classList.contains("boxOpen")){
-        this.classList.add("boxOpen");
-        openCards.push(this);
-    }
+volumeslider.addEventListener('input', handleVolume)
 
-    if (openCards.length == 2){
-        setTimeout(checkMatch, 500);
-    }
+const showhidekeys = (e) => {
+    pianoKeys.forEach(key => key.classList.toggle('hide'))
 }
 
-function checkMatch(){
-
-    if(openCards[0].innerHTML === openCards[1].innerHTML){
-        openCards[0].classList.add("boxMatch");
-        openCards[1].classList.add("boxMatch");
-        openCards = [];
-    }else{
-        openCards[0].classList.remove("boxOpen");
-        openCards[1].classList.remove("boxOpen");
-    }
-    if(document.querySelectorAll(".boxMatch").length === emojis.length){
-        alert("Você venceu!!!!")
-    }
-
-
-    openCards = [];
-
-
-}
+keysCheck.addEventListener('click', showhidekeys)
